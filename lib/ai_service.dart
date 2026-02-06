@@ -4,8 +4,8 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'models/level.dart';
 import 'models/transformation_result.dart';
 
-/// Servicio principal que actúa como el "Backend" de IA para SketchMage.
-/// Gestiona la comunicación con Gemini y la interpretación de los trazos físicos.
+/// Main Service acting as the "Backend" AI for SketchMage.
+/// Manages communication with Gemini and interpretation of physical sketches.
 class SketchMageAIService {
   final String apiKey;
   late GenerativeModel _model;
@@ -16,13 +16,13 @@ class SketchMageAIService {
       apiKey: apiKey,
       generationConfig: GenerationConfig(
         responseMimeType: 'application/json',
-        temperature: 0.1, // Precisión sobre creatividad para validación motriz
+        temperature: 0.1, // Precision over creativity for motor validation
       ),
     );
   }
 
-  /// Pasarela Principal: Recibe la imagen del boceto y el contexto del nivel.
-  /// Retorna un TransformationResult con la validación y el prompt de transformación.
+  /// Main Gateway: Receives the sketch image and level context.
+  /// Returns a TransformationResult with validation and transformation prompt.
   Future<TransformationResult> transformSketch({
     required Uint8List imageBytes,
     Level? currentLevel,
@@ -40,19 +40,19 @@ class SketchMageAIService {
 
     try {
       final response = await _model.generateContent(content);
-      if (response.text == null) throw Exception('La IA no devolvió respuesta');
+      if (response.text == null) throw Exception('AI did not return a response');
       
       final Map<String, dynamic> jsonResponse = jsonDecode(response.text!);
       return TransformationResult.fromJson(jsonResponse);
     } catch (e) {
       return TransformationResult(
-        objectName: 'Error de Conexión',
+        objectName: 'Connection Error',
         coordinates: [0, 0, 0, 0],
         stylePrompt: '',
         educationalFact: '',
         soundTag: 'error',
         isValid: false,
-        feedback: 'La magia se interrumpió: $e',
+        feedback: 'The magic was interrupted: $e',
       );
     }
   }
@@ -60,17 +60,17 @@ class SketchMageAIService {
   String _buildLevelPrompt(Level level) {
     return '''
       ${level.systemPrompt}
-      Estamos en el nivel: ${level.title}.
-      Misión: ${level.mission}.
+      We are at level: ${level.title}.
+      Mission: ${level.mission}.
       
-      Debes analizar el trazo del niño y responder ESTRICTAMENTE en JSON:
+      You must analyze the child's sketch and respond STRICTLY in JSON:
       {
-        "object_name": "nombre del trazo (ej: puente, circulo)",
+        "object_name": "sketch name (e.g., bridge, circle)",
         "coordinates": [ymin, xmin, ymax, xmax],
-        "isValid": bool (si cumple el objetivo del nivel),
-        "feedback": "mensaje motivador o guía pedagógica",
-        "style_prompt": "descripción para transformar este dibujo en un objeto 3D de alta calidad",
-        "educational_fact": "dato sobre ${level.skill}",
+        "isValid": bool (if it meets the level objective),
+        "feedback": "motivational message or original pedagogical guide",
+        "style_prompt": "description to transform this drawing into a high quality 3D object",
+        "educational_fact": "fact about ${level.skill}",
         "sound_tag": "magic_sparkle"
       }
     ''';
@@ -78,16 +78,16 @@ class SketchMageAIService {
 
   String _buildCreativePrompt() {
     return '''
-      Analiza este dibujo libre. Identifica el objeto y conviértelo en algo mágico.
-      Responde en JSON:
+      Analyze this free drawing. Identify the object and turn it into something magical.
+      Respond in JSON:
       {
-        "object_name": "nombre del objeto",
+        "object_name": "object name",
         "coordinates": [ymin, xmin, ymax, xmax],
-        "style_prompt": "prompt detallado para generar este objeto en estilo 3D Pixar",
-        "educational_fact": "un dato curioso sobre el objeto",
+        "style_prompt": "detailed prompt to generate this object in 3D Pixar style",
+        "educational_fact": "a fun fact about the object",
         "sound_tag": "object_sound",
         "isValid": true,
-        "feedback": "¡Tu dibujo ha cobrado vida!"
+        "feedback": "Your drawing has come to life!"
       }
     ''';
   }

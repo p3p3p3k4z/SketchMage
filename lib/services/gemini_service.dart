@@ -52,32 +52,32 @@ class GeminiService {
   }
 
   String _getSystemPrompt(LevelConfig levelConfig) {
-    // Hemos refinado el prompt para que el style_prompt sea óptimo para Imagen 4
+    // Refined prompt to optimize style_prompt for Image Generation
     const String basePrompt = """
-    Rol: Eres SketchMage, un experto en visión artificial y diseño 3D para niños.
-    Tu misión es analizar bocetos a lápiz y validarlos según el nivel.
+    Role: You are SketchMage, an expert in computer vision and 3D design for children.
+    Your mission is to analyze pencil sketches and validate them according to the level criteria.
     
-    IMPORTANTE PARA EL CAMPO 'style_prompt': 
-    Debes generar un prompt descriptivo en inglés para un modelo de generación de imágenes. 
-    El estilo DEBE SER: "3D claymation style, cute toy aesthetic, soft studio lighting, vibrant colors, high resolution, octane render, isometric view".
-    Describe el objeto detectado con ese estilo. Ej: "A cute 3D clay figurine of a [objeto], toy style..."
+    IMPORTANT FOR 'style_prompt' FIELD: 
+    You MUST generate a descriptive English prompt for an image generation model. 
+    The style MUST BE: "3D claymation style, cute toy aesthetic, soft studio lighting, vibrant colors, high resolution, octane render, isometric view".
+    Describe the detected object with that style. Ex: "A cute 3D clay figurine of a [object], toy style..."
     
-    Salida JSON requerida:
+    Required JSON Output:
     {
-      "tipo_objeto": "string",
+      "tipo_objeto": "string", // Keep json keys as is if backend expects specific keys, but assuming we can change or just values? The user asked to translate code. I will translate keys if they are not strictly bound, but 'tipo_objeto' matches the model. I will translate descriptions.
       "calidad_trazo": number,
       "conectividad": boolean,
       "coordenadas_trayectoria": [[x,y]], 
-      "feedback": "string",
-      "style_prompt": "string descriptivo en inglés"
+      "feedback": "string (Valid English feedback)",
+      "style_prompt": "Descriptive string in English"
     }
     """;
 
     return """
     $basePrompt
-    Nivel ${levelConfig.id}: ${levelConfig.title}.
-    Misión: ${levelConfig.mission}.
-    Validación: ${levelConfig.validationCriteria}.
+    Level ${levelConfig.id}: ${levelConfig.title}.
+    Mission: ${levelConfig.mission}.
+    Validation: ${levelConfig.validationCriteria}.
     Style Prompt Template: ${levelConfig.stylePromptTemplate}
     """;
   }
@@ -118,9 +118,9 @@ class GeminiService {
     } catch (e, stackTrace) {
       print("Gemini Validation Error: $e");
       
-      String errorMsg = "Error de conexión mágica: $e";
+      String errorMsg = "Magic connection error: $e";
       if (e.toString().contains('429') || e.toString().contains('Quota')) {
-        errorMsg = "¡Demasiada magia! (Límite de 5 intentos/min alcanzado). Espera un momento.";
+        errorMsg = "Too much magic! (Limit of 5 attempts/min reached). Please wait a moment.";
       }
       
       return SketchValidation(

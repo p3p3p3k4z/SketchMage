@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-// Importa tus archivos (ajusta las rutas según tu proyecto)
+// Import your files (adjust paths according to your project)
 import 'logic/game_controller.dart';
 import 'ui/level_dashboard.dart';
 
-// FIX para entornos de escritorio/algunos navegadores
+// FIX to override HTTP client to avoid Proxy environment lookup failure on some Linux/Desktop envs
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -16,17 +16,17 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 Future<void> main() async {
-  // 1. Asegurar inicialización de Widgets (Vital para plugins)
+  // 1. Ensure Widgets Initialization (Vital for plugins)
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Cargar variables de entorno (.env)
+  // 2. Load environment variables (.env)
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
-    debugPrint("Error cargando .env: $e");
+    debugPrint("Error loading .env: $e");
   }
 
-  // 3. Aplicar overrides de HTTP
+  // 3. Apply HTTP overrides
   HttpOverrides.global = MyHttpOverrides();
 
   runApp(
@@ -52,7 +52,7 @@ class SketchMageApp extends StatelessWidget {
         primarySwatch: Colors.deepPurple,
         useMaterial3: true,
       ),
-      home: const LevelDashboard(), // Tu pantalla inicial
+      home: const LevelDashboard(), // Your initial screen
     );
   }
 }

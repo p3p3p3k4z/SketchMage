@@ -148,7 +148,7 @@ class GameController extends ChangeNotifier {
         html.Url.revokeObjectUrl(url);
       } else {
         await Gal.putImageBytes(_generatedImageBytes!);
-        debugPrint("Imagen guardada en galería");
+        debugPrint("Image saved to gallery");
       }
     } catch (e) {
       debugPrint("Error saving image: $e");

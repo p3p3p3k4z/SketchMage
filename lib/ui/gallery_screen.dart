@@ -23,9 +23,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
     final images = context.watch<GameController>().galleryImages;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Galería de Hechizos")),
+      appBar: AppBar(title: const Text("Spell Gallery")),
       body: images.isEmpty
-          ? const Center(child: Text("Bocetos mágicos aparecerán aquí..."))
+          ? const Center(child: Text("Magic sketches will appear here..."))
           : GridView.builder(
               padding: const EdgeInsets.all(10),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

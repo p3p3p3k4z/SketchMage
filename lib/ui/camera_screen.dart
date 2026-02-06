@@ -61,7 +61,7 @@ class _CameraScreenState extends State<CameraScreen> {
       appBar: AppBar(title: Text("Nivel ${gameState.currentLevel}")),
       body: Stack(
         children: [
-          // 1. PREVISUALIZACIÓN (Cámara o Foto tomada)
+          // 1. PREVIEW (Camera or Taken Photo)
           if (_isInit && gameState.state != GameState.preview && gameState.state != GameState.success && gameState.state != GameState.failure) 
             CameraPreview(_controller!)
           else if (gameState.pendingImageBytes != null)
@@ -72,9 +72,9 @@ class _CameraScreenState extends State<CameraScreen> {
                height: double.infinity
              )
           else 
-            const Center(child: Text("Cargando magia...")),
+            const Center(child: Text("Loading magic...")),
 
-          // 2. SELECTOR DE ESTILOS (Solo al inicio)
+          // 2. STYLE SELECTOR (Only at start)
           if (styles.isNotEmpty && gameState.state == GameState.initial)
             Positioned(
               top: 10,
@@ -90,7 +90,7 @@ class _CameraScreenState extends State<CameraScreen> {
                   child: DropdownButton<String>(
                     dropdownColor: Colors.black87,
                     value: gameState.selectedStyle,
-                    hint: const Text("Estilo Mágico (Opcional)", style: TextStyle(color: Colors.white)),
+                    hint: const Text("Magic Style (Optional)", style: TextStyle(color: Colors.white)),
                     icon: const Icon(Icons.brush, color: Colors.purpleAccent),
                     isExpanded: true,
                     style: const TextStyle(color: Colors.white),
@@ -104,7 +104,7 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
             ),
 
-          // 3. RESULTADO 3D (Se muestra sobre el dibujo original)
+          // 3. 3D RESULT (Overlay on original sketch)
           if (gameState.state == GameState.success && gameState.generatedImageBytes != null)
             Positioned(
               top: 70,
@@ -127,7 +127,7 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
             ),
 
-          // 4. OVERLAY DE CARGA
+          // 4. LOADING OVERLAY
           if (gameState.state == GameState.validating)
             Container(
               color: Colors.black87,
@@ -138,7 +138,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     CircularProgressIndicator(color: Colors.purpleAccent),
                     SizedBox(height: 20),
                     Text(
-                      "Invocando a la IA...",
+                      "Summoning AI...",
                       style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -146,7 +146,7 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
             ),
 
-          // 5. MENSAJES DE FEEDBACK
+          // 5. FEEDBACK MESSAGES
           if (gameState.state == GameState.success || gameState.state == GameState.failure)
             Positioned(
               bottom: 110,
@@ -162,7 +162,7 @@ class _CameraScreenState extends State<CameraScreen> {
                   child: Column(
                     children: [
                       Text(
-                        gameState.state == GameState.success ? "¡LOGRADO!" : "¡SIGUE INTENTANDO!",
+                        gameState.state == GameState.success ? "SUCCESS!" : "TRY AGAIN!",
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                       const SizedBox(height: 5),
@@ -177,7 +177,7 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
             ),
             
-           // 6. CONTROLES DE PREVIEW
+           // 6. PREVIEW CONTROLS
            if (gameState.state == GameState.preview)
              Positioned(
                bottom: 30,
@@ -190,14 +190,14 @@ class _CameraScreenState extends State<CameraScreen> {
                      heroTag: "retake",
                      onPressed: () => gameState.retake(),
                      icon: const Icon(Icons.refresh),
-                     label: const Text("Repetir"),
+                     label: const Text("Retake"),
                      backgroundColor: Colors.grey[800],
                    ),
                    FloatingActionButton.extended(
                      heroTag: "confirm",
                      onPressed: () => gameState.confirmAndProcess(),
                      icon: const Icon(Icons.auto_awesome),
-                     label: const Text("Dar Vida"),
+                     label: const Text("Bring to Life"),
                      backgroundColor: Colors.purpleAccent,
                    ),
                  ],
@@ -206,7 +206,7 @@ class _CameraScreenState extends State<CameraScreen> {
         ],
       ),
 
-      // 7. BOTONES PRINCIPALES Y ACCIÓN FINAL
+      // 7. MAIN BUTTONS AND FINAL ACTION
       floatingActionButton: _buildMainActionButtons(context, gameState),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -242,13 +242,13 @@ class _CameraScreenState extends State<CameraScreen> {
             heroTag: "download",
             onPressed: () => gameState.saveGeneratedImage(),
             icon: const Icon(Icons.download),
-            label: const Text("Guardar Magia"),
+            label: const Text("Save Magic"),
             backgroundColor: Colors.blueAccent,
           ),
           const SizedBox(height: 12),
           TextButton(
             onPressed: () => gameState.reset(),
-            child: const Text("Volver a empezar", style: TextStyle(color: Colors.white)),
+            child: const Text("Start Over", style: TextStyle(color: Colors.white)),
           )
         ],
       );
@@ -258,7 +258,7 @@ class _CameraScreenState extends State<CameraScreen> {
        return FloatingActionButton.extended(
             onPressed: () => gameState.retake(),
             icon: const Icon(Icons.edit),
-            label: const Text("Intentar de nuevo"),
+            label: const Text("Try Again"),
             backgroundColor: Colors.orangeAccent,
           );
     }
