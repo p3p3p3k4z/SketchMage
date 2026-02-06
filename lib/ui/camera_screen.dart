@@ -64,9 +64,9 @@ class _CameraScreenState extends State<CameraScreen> {
           // Camera Preview
           if (_isInit && gameState.state != GameState.preview) 
             CameraPreview(_controller!)
-          else if (gameState.state == GameState.preview && gameState.pendingImage != null)
-             Image.network(
-               gameState.pendingImage!.path, 
+          else if (gameState.state == GameState.preview && gameState.pendingImageBytes != null)
+             Image.memory(
+               gameState.pendingImageBytes!, 
                fit: BoxFit.cover, 
                width: double.infinity, 
                height: double.infinity

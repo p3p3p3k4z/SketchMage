@@ -8,7 +8,9 @@ import '../services/gemini_service.dart';
 import '../services/image_generation_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:gal/gal.dart';
+import 'package:universal_html/html.dart' as html;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 
 enum GameState { initial, preview, loading, validating, success, failure }
@@ -69,14 +71,19 @@ class GameController extends ChangeNotifier {
   XFile? _pendingImage;
   XFile? get pendingImage => _pendingImage;
 
+  Uint8List? _pendingImageBytes;
+  Uint8List? get pendingImageBytes => _pendingImageBytes;
+
   Future<void> captureImage(XFile imageFile) async {
     _pendingImage = imageFile;
+    _pendingImageBytes = await imageFile.readAsBytes();
     _state = GameState.preview;
     notifyListeners();
   }
   
   void retake() {
     _pendingImage = null;
+    _pendingImageBytes = null;
     _state = GameState.initial;
     notifyListeners();
   }
@@ -129,6 +136,7 @@ class GameController extends ChangeNotifier {
     _lastValidation = null;
     _generatedTexturePath = null;
     _pendingImage = null;
+    _pendingImageBytes = null;
     notifyListeners();
   }
   
@@ -148,16 +156,30 @@ class GameController extends ChangeNotifier {
     if (_generatedTexturePath == null) return;
     
     try {
-      // Download the image bytes
+      // 1. Download the image bytes first
       var response = await http.get(Uri.parse(_generatedTexturePath!));
       
       if (response.statusCode == 200) {
-        final result = await ImageGallerySaver.saveImage(
-          Uint8List.fromList(response.bodyBytes),
-          quality: 100,
-          name: "magic_sketch_${DateTime.now().millisecondsSinceEpoch}"
-        );
-        print("Image saved to gallery: $result");
+        final bytes = response.bodyBytes;
+
+        if (kIsWeb) {
+          // WEB: Create anchor element to download
+          final blob = html.Blob([bytes]);
+          final url = html.Url.createObjectUrlFromBlob(blob);
+          final anchor = html.AnchorElement(href: url)
+            ..setAttribute("download", "sketchmage_${DateTime.now().millisecondsSinceEpoch}.jpg")
+            ..click();
+          html.Url.revokeObjectUrl(url);
+          print("Web download triggered");
+        } else {
+          // MOBILE (Android/iOS): Use Gal
+          // Gal requires a temporary file path or bytes. PutImageBytes is best.
+          await Gal.putImageBytes(
+            Uint8List.fromList(bytes),
+            name: "sketchmage_${DateTime.now().millisecondsSinceEpoch}", 
+          );
+          print("Image saved to gallery via Gal");
+        }
       } else {
         print("Failed to download image: ${response.statusCode}");
       }
