@@ -6,9 +6,10 @@ import '../models/sketch_validation.dart';
 import '../models/app_config.dart';
 import '../services/gemini_service.dart';
 import '../services/image_generation_service.dart';
+import '../services/tts_service.dart'; // Import TTS
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:gal/gal.dart'; // Asegúrate de tener gal: ^2.3.0 en pubspec
+import 'package:gal/gal.dart'; 
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
@@ -18,6 +19,7 @@ enum GameState { initial, preview, loading, validating, success, failure }
 class GameController extends ChangeNotifier {
   final GeminiService _geminiService = GeminiService();
   final ImageGenerationService _imageGenService = ImageGenerationService();
+  final TtsService _ttsService = TtsService(); // Instantiate TTS
 
   GameState _state = GameState.initial;
   GameState get state => _state;
@@ -91,7 +93,8 @@ class GameController extends ChangeNotifier {
     
     _state = GameState.validating;
     notifyListeners();
-
+    // Optional: Speak "Thinking..." or similar if desired, but kept simple for now
+    
     try {
       final levelConfig = _appConfig!.levels.firstWhere(
         (l) => l.id == _currentLevel, 
@@ -105,6 +108,9 @@ class GameController extends ChangeNotifier {
       );
       
       _lastValidation = validation;
+      
+      // Speak the feedback!
+      _ttsService.speak(validation.feedback);
 
       if (validation.success) {
         if (validation.stylePrompt.isNotEmpty) {
@@ -118,6 +124,7 @@ class GameController extends ChangeNotifier {
     } catch (e) {
       debugPrint("Game Logic Error: $e");
       _state = GameState.failure;
+      _ttsService.speak("Oh no! Something went wrong with the magic.");
     }
     notifyListeners();
   }
@@ -192,6 +199,7 @@ class GameController extends ChangeNotifier {
   }
 
   void reset() {
+    _ttsService.stop(); // Stop speaking when resetting
     _state = GameState.initial;
     _lastValidation = null;
     _generatedImageBytes = null;
