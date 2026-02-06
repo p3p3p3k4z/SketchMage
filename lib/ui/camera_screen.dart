@@ -29,7 +29,7 @@ class _CameraScreenState extends State<CameraScreen> {
       await _controller!.initialize();
       if (mounted) setState(() => _isInit = true);
     } catch (e) {
-      print("Camera init error: $e");
+      debugPrint("Camera init error: $e");
     }
   }
 
@@ -48,7 +48,7 @@ class _CameraScreenState extends State<CameraScreen> {
         context.read<GameController>().captureImage(image);
       }
     } catch (e) {
-      print("Capture error: $e");
+      debugPrint("Capture error: $e");
     }
   }
 
@@ -61,10 +61,10 @@ class _CameraScreenState extends State<CameraScreen> {
       appBar: AppBar(title: Text("Nivel ${gameState.currentLevel}")),
       body: Stack(
         children: [
-          // Camera Preview
-          if (_isInit && gameState.state != GameState.preview) 
+          // 1. PREVISUALIZACIÓN (Cámara o Foto tomada)
+          if (_isInit && gameState.state != GameState.preview && gameState.state != GameState.success && gameState.state != GameState.failure) 
             CameraPreview(_controller!)
-          else if (gameState.state == GameState.preview && gameState.pendingImageBytes != null)
+          else if (gameState.pendingImageBytes != null)
              Image.memory(
                gameState.pendingImageBytes!, 
                fit: BoxFit.cover, 
@@ -72,9 +72,9 @@ class _CameraScreenState extends State<CameraScreen> {
                height: double.infinity
              )
           else 
-            const Center(child: Text("Buscando cámara / Simulador...")),
+            const Center(child: Text("Cargando magia...")),
 
-          // Style Selector Overlay (Top) - Only show in Camera Mode
+          // 2. SELECTOR DE ESTILOS (Solo al inicio)
           if (styles.isNotEmpty && gameState.state == GameState.initial)
             Positioned(
               top: 10,
@@ -104,38 +104,33 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
             ),
 
-          // Generated Texture Display
-          if (gameState.state == GameState.success && gameState.generatedTexturePath != null)
+          // 3. RESULTADO 3D (Se muestra sobre el dibujo original)
+          if (gameState.state == GameState.success && gameState.generatedImageBytes != null)
             Positioned(
-              top: 70, // Moved down below selector
+              top: 70,
               right: 20,
-              width: 150,
-              height: 150,
+              width: 180,
+              height: 180,
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 2),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [BoxShadow(color: Colors.black45, blurRadius: 10)],
+                  border: Border.all(color: Colors.purpleAccent, width: 3),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: const [BoxShadow(color: Colors.black87, blurRadius: 15)],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    gameState.generatedTexturePath!,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.memory(
+                    gameState.generatedImageBytes!,
                     fit: BoxFit.cover,
-                    loadingBuilder: (ctx, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return const Center(child: CircularProgressIndicator());
-                    },
-                    errorBuilder: (ctx, error, stackTrace) => const Center(child: Icon(Icons.error, color: Colors.red)),
                   ),
                 ),
               ),
             ),
 
-          // Loading Overlay
+          // 4. OVERLAY DE CARGA
           if (gameState.state == GameState.validating)
             Container(
-              color: Colors.black54,
+              color: Colors.black87,
               child: const Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -143,7 +138,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     CircularProgressIndicator(color: Colors.purpleAccent),
                     SizedBox(height: 20),
                     Text(
-                      "Consultando a los espíritus de la IA...",
+                      "Invocando a la IA...",
                       style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -151,42 +146,38 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
             ),
 
-          // Success/Failure Feedback
-          if (gameState.state == GameState.success)
+          // 5. MENSAJES DE FEEDBACK
+          if (gameState.state == GameState.success || gameState.state == GameState.failure)
             Positioned(
-              bottom: 100,
+              bottom: 110,
               left: 20,
               right: 20,
               child: Card(
-                color: Colors.green.withOpacity(0.9),
+                color: gameState.state == GameState.success 
+                    ? Colors.green.withOpacity(0.9) 
+                    : Colors.red.withOpacity(0.9),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text(
-                    "¡Mágico! ${gameState.lastValidation?.feedback ?? ''}",
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                  child: Column(
+                    children: [
+                      Text(
+                        gameState.state == GameState.success ? "¡LOGRADO!" : "¡SIGUE INTENTANDO!",
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        gameState.lastValidation?.feedback ?? '',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
             
-           if (gameState.state == GameState.failure)
-            Positioned(
-              bottom: 100,
-              left: 20,
-              right: 20,
-              child: Card(
-                color: Colors.red.withOpacity(0.9),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    "${gameState.lastValidation?.feedback ?? 'Error desconocido'}",
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
-              ),
-            ),
-            
-           // Preview Controls
+           // 6. CONTROLES DE PREVIEW
            if (gameState.state == GameState.preview)
              Positioned(
                bottom: 30,
@@ -197,56 +188,81 @@ class _CameraScreenState extends State<CameraScreen> {
                  children: [
                    FloatingActionButton.extended(
                      heroTag: "retake",
-                     onPressed: () => context.read<GameController>().retake(),
+                     onPressed: () => gameState.retake(),
                      icon: const Icon(Icons.refresh),
                      label: const Text("Repetir"),
-                     backgroundColor: Colors.redAccent,
+                     backgroundColor: Colors.grey[800],
                    ),
                    FloatingActionButton.extended(
                      heroTag: "confirm",
-                     onPressed: () => context.read<GameController>().confirmAndProcess(),
-                     icon: const Icon(Icons.check),
-                     label: const Text("Enviar a la IA"),
-                     backgroundColor: Colors.greenAccent,
+                     onPressed: () => gameState.confirmAndProcess(),
+                     icon: const Icon(Icons.auto_awesome),
+                     label: const Text("Dar Vida"),
+                     backgroundColor: Colors.purpleAccent,
                    ),
                  ],
                ),
              ),
         ],
       ),
-      // Main Camera Button (Only if Initial state)
-      floatingActionButton: gameState.state == GameState.initial 
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FloatingActionButton(
-                heroTag: "gallery_import",
-                onPressed: () => context.read<GameController>().pickFromGallery(),
-                backgroundColor: Colors.white,
-                child: const Icon(Icons.photo_library, color: Colors.purple),
-              ),
-              const SizedBox(width: 20),
-              FloatingActionButton(
-                heroTag: "camera_capture",
-                onPressed: _capture,
-                child: const Icon(Icons.camera),
-              ),
-            ],
-          )
-        : gameState.state == GameState.success 
-           ? FloatingActionButton.extended(
-                onPressed: () {
-                   // context.read<GameController>().saveGeneratedImage();
-                   ScaffoldMessenger.of(context).showSnackBar(
-                     const SnackBar(content: Text("Imagen guardada en la galería (Simulado)"))
-                   );
-                },
-                icon: const Icon(Icons.download),
-                label: const Text("Descargar al Dispositivo"),
-             )
-           : null,
+
+      // 7. BOTONES PRINCIPALES Y ACCIÓN FINAL
+      floatingActionButton: _buildMainActionButtons(context, gameState),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
+
+  Widget? _buildMainActionButtons(BuildContext context, GameController gameState) {
+    if (gameState.state == GameState.initial) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton(
+            heroTag: "gallery",
+            onPressed: () => gameState.pickFromGallery(),
+            backgroundColor: Colors.white,
+            child: const Icon(Icons.photo_library, color: Colors.purple),
+          ),
+          const SizedBox(width: 25),
+          FloatingActionButton.large(
+            heroTag: "capture",
+            onPressed: _capture,
+            backgroundColor: Colors.purpleAccent,
+            child: const Icon(Icons.camera_alt, size: 40, color: Colors.white),
+          ),
+        ],
+      );
+    }
+
+    if (gameState.state == GameState.success) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: "download",
+            onPressed: () => gameState.saveGeneratedImage(),
+            icon: const Icon(Icons.download),
+            label: const Text("Guardar Magia"),
+            backgroundColor: Colors.blueAccent,
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => gameState.reset(),
+            child: const Text("Volver a empezar", style: TextStyle(color: Colors.white)),
+          )
+        ],
+      );
+    }
+    
+    if (gameState.state == GameState.failure) {
+       return FloatingActionButton.extended(
+            onPressed: () => gameState.retake(),
+            icon: const Icon(Icons.edit),
+            label: const Text("Intentar de nuevo"),
+            backgroundColor: Colors.orangeAccent,
+          );
+    }
+
+    return null;
+  }
 }
-// Removed ARPathPainter as requested (the "strange line").

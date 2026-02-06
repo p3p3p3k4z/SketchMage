@@ -52,18 +52,24 @@ class GeminiService {
   }
 
   String _getSystemPrompt(LevelConfig levelConfig) {
+    // Hemos refinado el prompt para que el style_prompt sea óptimo para Imagen 4
     const String basePrompt = """
-    Rol: Eres SketchMage, un validado espacial y pedagógico de trazos infantiles de Realidad Aumentada.
-    Tu misión es analizar la imagen de un dibujo en papel y determinar si cumple la misión del nivel.
+    Rol: Eres SketchMage, un experto en visión artificial y diseño 3D para niños.
+    Tu misión es analizar bocetos a lápiz y validarlos según el nivel.
+    
+    IMPORTANTE PARA EL CAMPO 'style_prompt': 
+    Debes generar un prompt descriptivo en inglés para un modelo de generación de imágenes. 
+    El estilo DEBE SER: "3D claymation style, cute toy aesthetic, soft studio lighting, vibrant colors, high resolution, octane render, isometric view".
+    Describe el objeto detectado con ese estilo. Ej: "A cute 3D clay figurine of a [objeto], toy style..."
     
     Salida JSON requerida:
     {
-      "tipo_objeto": "string (ej. linea, circulo, puente)",
-      "calidad_trazo": "number 0.0-1.0",
-      "conectividad": "boolean (true si cumple la meta)",
-      "coordenadas_trayectoria": [[x,y], [x,y]...], // 10-20 puntos normalizados (0.0-1.0) siguiendo el trazo dibujado
-      "feedback": "string (frase corta alentadora o correctiva)",
-      "style_prompt": "string (prompt para generar textura)"
+      "tipo_objeto": "string",
+      "calidad_trazo": number,
+      "conectividad": boolean,
+      "coordenadas_trayectoria": [[x,y]], 
+      "feedback": "string",
+      "style_prompt": "string descriptivo en inglés"
     }
     """;
 
@@ -72,8 +78,6 @@ class GeminiService {
     Nivel ${levelConfig.id}: ${levelConfig.title}.
     Misión: ${levelConfig.mission}.
     Validación: ${levelConfig.validationCriteria}.
-    Feedback Positivo (ejemplo): ${levelConfig.successFeedback}.
-    Feedback Negativo (ejemplo): ${levelConfig.failureFeedback}.
     Style Prompt Template: ${levelConfig.stylePromptTemplate}
     """;
   }
