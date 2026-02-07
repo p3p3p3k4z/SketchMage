@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Sketchmage</string>
+	<string>SketchMage</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -41,9 +41,24 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- 📸 Camera Permission -->
+	<key>NSCameraUsageDescription</key>
+	<string>SketchMage needs access to the camera to see your drawings and bring them to life!</string>
+
+	<!-- 🎤 Microphone Permission (Required by camera plugin) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SketchMage needs access to the microphone for recording interactive sessions.</string>
+
+	<!-- 🖼 Photo Library Permission -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SketchMage needs access to your gallery to load and save your magic sketches.</string>
+
 </dict>
 </plist>
