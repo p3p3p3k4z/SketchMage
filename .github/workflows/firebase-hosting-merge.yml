@@ -1,0 +1,40 @@
+name: Deploy to Firebase Hosting on merge
+on:
+  push:
+    branches:
+      - main # Asegúrate de que tu rama principal se llame 'main'
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Descargar el código del repositorio
+      - uses: actions/checkout@v4
+
+      # 2. Instalar Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 3. CREAR EL ARCHIVO .ENV (Vital para tu API privada)
+      # Esto toma el secreto 'ENV_FILE' de GitHub y crea el archivo físico antes de compilar
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+      # 4. Instalar dependencias
+      - run: flutter pub get
+
+      # 5. Construir la versión Web (Release)
+      - run: flutter build web --release
+
+      # 6. Desplegar a Firebase Hosting
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          # IMPORTANTE: Revisa en GitHub -> Settings -> Secrets and variables -> Actions
+          # para confirmar que este nombre sea EXACTO. Firebase suele ponerle el nombre del proyecto al final.
+          # Si tu secreto tiene otro nombre, cámbialo aquí abajo.
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SKETCHMAGE_FC268 }}'
+          channelId: live
+          projectId: sketchmage-fc268
