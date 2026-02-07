@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "675211764618",
+    "project_id": "sketchmage-fc268",
+    "storage_bucket": "sketchmage-fc268.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675211764618:android:049c73053d4d81459d5e73",
+        "android_client_info": {
+          "package_name": "com.example.sketchmage"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfx5tbtW6mXK__mRK1aEySonXL4PXonEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

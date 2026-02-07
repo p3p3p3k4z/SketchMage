@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+//import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ImageGenerationService {
   // 2026 FIX: Unified Endpoint for Google AI SDK
   final String _url = "https://generativelanguage.googleapis.com/v1beta/models/imagen-2.5-fast-generate-001:predict";
 
   Future<Uint8List?> generate3DImage(String stylePrompt) async {
-    final apiKey = dotenv.env['GEMINI_API_KEY'];
-    
+    //final apiKey = dotenv.env['GEMINI_API_KEY'];
+    const apiKey = String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
     if (apiKey == null || apiKey.isEmpty) {
       print("ERROR: GEMINI_API_KEY not found in .env");
       return null;

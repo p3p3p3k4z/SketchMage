@@ -5,14 +5,13 @@ import 'package:cross_file/cross_file.dart';
 import '../models/sketch_validation.dart';
 import '../models/app_config.dart';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+//import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class GeminiService {
   late final GenerativeModel _model; // Keeping this for backward compatibility if needed, but we use dynamic models now
-  
+  static const String apiKey = String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
   GeminiService() {
-   // Constructor logic mainly for initialization verification
-   final apiKey = dotenv.env['GEMINI_API_KEY'];
+   // final apiKey = dotenv.env['GEMINI_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
       print("CRITIAL: GEMINI_API_KEY is missing in .env");
       throw Exception("GEMINI_API_KEY is missing. Please check .env file.");
@@ -35,7 +34,7 @@ class GeminiService {
     
     String modelName;
     if (levelId >= 1 && levelId <= 5) {
-      modelName = 'gemini-3.0-flash'; 
+      modelName = 'gemini-2.5-flash'; //before 3.0 but api limit ;-;
     } else {
       modelName = 'gemini-2.5-flash'; 
     }
@@ -84,7 +83,7 @@ class GeminiService {
 
   Future<SketchValidation> validateSketch(XFile imageFile, LevelConfig levelConfig, {String? selectedStyle}) async {
     try {
-      final apiKey = dotenv.env['GEMINI_API_KEY']!.trim();
+      // final apiKey = dotenv.env['GEMINI_API_KEY']!.trim();
       final model = _getModelForLevel(levelConfig.id, apiKey);
       
       var prompt = _getSystemPrompt(levelConfig);

@@ -12,5 +12,28 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "sketchmage-fc268",
+          "appId": "1:675211764618:android:049c73053d4d81459d5e73",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "sketchmage-fc268",
+          "configurations": {
+            "android": "1:675211764618:android:049c73053d4d81459d5e73",
+            "ios": "1:675211764618:ios:de0ff600c36c02e19d5e73",
+            "macos": "1:675211764618:ios:de0ff600c36c02e19d5e73",
+            "web": "1:675211764618:web:7b2ceb23dd3531459d5e73",
+            "windows": "1:675211764618:web:04ff36798d68f3069d5e73"
+          }
+        }
+      }
+    }
   }
 }
