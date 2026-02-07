@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:provider/provider.dart';
 import '../logic/game_controller.dart';
+import 'magic_result_screen.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -55,214 +56,195 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     final gameState = context.watch<GameController>();
-    final styles = gameState.appConfig?.styles ?? [];
 
     return Scaffold(
-      appBar: AppBar(title: Text("Nivel ${gameState.currentLevel}")),
+      appBar: AppBar(
+        title: Text("Level ${gameState.currentLevel}", style: const TextStyle(fontSize: 18)),
+        centerTitle: true,
+      ),
       body: Stack(
         children: [
-          // 1. PREVIEW (Camera or Taken Photo)
-          if (_isInit && gameState.state != GameState.preview && gameState.state != GameState.success && gameState.state != GameState.failure) 
-            CameraPreview(_controller!)
+          if (_isInit && gameState.state == GameState.initial) 
+            SizedBox.expand(child: CameraPreview(_controller!))
           else if (gameState.pendingImageBytes != null)
-             Image.memory(
-               gameState.pendingImageBytes!, 
-               fit: BoxFit.cover, 
-               width: double.infinity, 
-               height: double.infinity
+             SizedBox.expand(
+               child: Image.memory(
+                 gameState.pendingImageBytes!, 
+                 fit: BoxFit.cover,
+               ),
              )
           else 
-            const Center(child: Text("Loading magic...")),
+            const Center(child: CircularProgressIndicator()),
 
-          // 2. STYLE SELECTOR (Only at start)
-          if (styles.isNotEmpty && gameState.state == GameState.initial)
+          if (gameState.state == GameState.success && gameState.lastValidation?.objectType.isNotEmpty == true)
             Positioned(
-              top: 10,
-              left: 10,
-              right: 10,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    dropdownColor: Colors.black87,
-                    value: gameState.selectedStyle,
-                    hint: const Text("Magic Style (Optional)", style: TextStyle(color: Colors.white)),
-                    icon: const Icon(Icons.brush, color: Colors.purpleAccent),
-                    isExpanded: true,
-                    style: const TextStyle(color: Colors.white),
-                    items: styles.map((s) => DropdownMenuItem(
-                      value: s,
-                      child: Text(s),
-                    )).toList(),
-                    onChanged: (val) => context.read<GameController>().setStyle(val),
-                  ),
-                ),
-              ),
+              top: 20,
+              left: 50,
+              right: 50,
+              child: _buildSmallIdentityBanner(gameState),
             ),
 
-          // 3. 3D RESULT (Overlay on original sketch)
-          if (gameState.state == GameState.success && gameState.generatedImageBytes != null)
-            Positioned(
-              top: 70,
-              right: 20,
-              width: 180,
-              height: 180,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.purpleAccent, width: 3),
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [BoxShadow(color: Colors.black87, blurRadius: 15)],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.memory(
-                    gameState.generatedImageBytes!,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
-
-          // 4. LOADING OVERLAY
           if (gameState.state == GameState.validating)
-            Container(
-              color: Colors.black87,
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(color: Colors.purpleAccent),
-                    SizedBox(height: 20),
-                    Text(
-                      "Summoning AI...",
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _buildLoadingOverlay(),
 
-          // 5. FEEDBACK MESSAGES
           if (gameState.state == GameState.success || gameState.state == GameState.failure)
             Positioned(
-              bottom: 110,
-              left: 20,
-              right: 20,
-              child: Card(
-                color: gameState.state == GameState.success 
-                    ? Colors.green.withOpacity(0.9) 
-                    : Colors.red.withOpacity(0.9),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Text(
-                        gameState.state == GameState.success ? "SUCCESS!" : "TRY AGAIN!",
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        gameState.lastValidation?.feedback ?? '',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              bottom: 120,
+              left: 30,
+              right: 30,
+              child: _buildCompactFeedbackCard(gameState),
             ),
-            
-           // 6. PREVIEW CONTROLS
-           if (gameState.state == GameState.preview)
-             Positioned(
-               bottom: 30,
-               left: 0,
-               right: 0,
-               child: Row(
-                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                 children: [
-                   FloatingActionButton.extended(
-                     heroTag: "retake",
-                     onPressed: () => gameState.retake(),
-                     icon: const Icon(Icons.refresh),
-                     label: const Text("Retake"),
-                     backgroundColor: Colors.grey[800],
-                   ),
-                   FloatingActionButton.extended(
-                     heroTag: "confirm",
-                     onPressed: () => gameState.confirmAndProcess(),
-                     icon: const Icon(Icons.auto_awesome),
-                     label: const Text("Bring to Life"),
-                     backgroundColor: Colors.purpleAccent,
-                   ),
-                 ],
-               ),
-             ),
         ],
       ),
-
-      // 7. MAIN BUTTONS AND FINAL ACTION
-      floatingActionButton: _buildMainActionButtons(context, gameState),
+      floatingActionButton: _buildHorizontalActionButtons(context, gameState),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
-  Widget? _buildMainActionButtons(BuildContext context, GameController gameState) {
+  Widget _buildSmallIdentityBanner(GameController gameState) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.purple.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white, width: 1.5),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text("IT'S A...", style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
+          Text(
+            gameState.lastValidation!.objectType.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingOverlay() {
+    return Container(
+      color: Colors.black54,
+      child: const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: Colors.purpleAccent),
+            SizedBox(height: 10),
+            Text("Summoning magic...", style: TextStyle(color: Colors.white, fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactFeedbackCard(GameController gameState) {
+    return Card(
+      color: gameState.state == GameState.success ? Colors.green.withOpacity(0.8) : Colors.red.withOpacity(0.8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        child: Text(
+          gameState.lastValidation?.feedback ?? '',
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white, fontSize: 13),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalActionButtons(BuildContext context, GameController gameState) {
     if (gameState.state == GameState.initial) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          FloatingActionButton(
+          FloatingActionButton.small(
             heroTag: "gallery",
             onPressed: () => gameState.pickFromGallery(),
             backgroundColor: Colors.white,
             child: const Icon(Icons.photo_library, color: Colors.purple),
           ),
-          const SizedBox(width: 25),
-          FloatingActionButton.large(
+          const SizedBox(width: 20),
+          FloatingActionButton(
             heroTag: "capture",
             onPressed: _capture,
             backgroundColor: Colors.purpleAccent,
-            child: const Icon(Icons.camera_alt, size: 40, color: Colors.white),
+            child: const Icon(Icons.camera_alt, color: Colors.white),
+          ),
+        ],
+      );
+    }
+
+    if (gameState.state == GameState.preview) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: "retake",
+            onPressed: () => gameState.retake(),
+            icon: const Icon(Icons.refresh),
+            label: const Text("Retake"),
+            backgroundColor: Colors.grey[800],
+          ),
+          const SizedBox(width: 15),
+          FloatingActionButton.extended(
+            heroTag: "confirm",
+            onPressed: () => gameState.confirmAndProcess(),
+            icon: const Icon(Icons.auto_awesome),
+            label: const Text("Bring to Life"),
+            backgroundColor: Colors.purpleAccent,
           ),
         ],
       );
     }
 
     if (gameState.state == GameState.success) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           FloatingActionButton.extended(
-            heroTag: "download",
-            onPressed: () => gameState.saveGeneratedImage(),
-            icon: const Icon(Icons.download),
-            label: const Text("Save Magic"),
-            backgroundColor: Colors.blueAccent,
-          ),
-          const SizedBox(height: 12),
-          TextButton(
+            heroTag: "reset",
             onPressed: () => gameState.reset(),
-            child: const Text("Start Over", style: TextStyle(color: Colors.white)),
-          )
+            icon: const Icon(Icons.replay),
+            label: const Text("Next"),
+            backgroundColor: Colors.blue,
+          ),
+          const SizedBox(width: 15),
+          // MAGIC TRANSFORM BUTTON: Only appears if objectType exists
+          FloatingActionButton.extended(
+            heroTag: "transform",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MagicResultScreen(objectId: gameState.lastObjectType!),
+                ),
+              );
+            },
+            icon: const Icon(Icons.bolt, color: Colors.amberAccent),
+            label: const Text("Transform"),
+            backgroundColor: Colors.deepPurple,
+          ),
         ],
       );
     }
-    
+
     if (gameState.state == GameState.failure) {
-       return FloatingActionButton.extended(
-            onPressed: () => gameState.retake(),
-            icon: const Icon(Icons.edit),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: "retry",
+            onPressed: () => gameState.reset(),
+            icon: const Icon(Icons.replay),
             label: const Text("Try Again"),
-            backgroundColor: Colors.orangeAccent,
-          );
+            backgroundColor: Colors.orange,
+          ),
+        ],
+      );
     }
 
-    return null;
+    return const SizedBox.shrink();
   }
 }

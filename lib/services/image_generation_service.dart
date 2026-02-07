@@ -5,7 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ImageGenerationService {
   // 2026 FIX: Unified Endpoint for Google AI SDK
-  final String _url = "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-fast-generate-001:predict";
+  final String _url = "https://generativelanguage.googleapis.com/v1beta/models/imagen-2.5-fast-generate-001:predict";
 
   Future<Uint8List?> generate3DImage(String stylePrompt) async {
     final apiKey = dotenv.env['GEMINI_API_KEY'];

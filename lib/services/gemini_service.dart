@@ -64,11 +64,11 @@ class GeminiService {
     
     Required JSON Output:
     {
-      "tipo_objeto": "string", // Keep json keys as is if backend expects specific keys, but assuming we can change or just values? The user asked to translate code. I will translate keys if they are not strictly bound, but 'tipo_objeto' matches the model. I will translate descriptions.
-      "calidad_trazo": number,
-      "conectividad": boolean,
-      "coordenadas_trayectoria": [[x,y]], 
-      "feedback": "string (Valid English feedback)",
+      "object_type": "string (The name of the detected object in English, e.g., 'Cat')",
+      "trazo_quality": number,
+      "connectivity": boolean,
+      "trajectory_coordinates": [[x,y]], 
+      "feedback": "string (Valid English feedback for a child)",
       "style_prompt": "Descriptive string in English"
     }
     """;

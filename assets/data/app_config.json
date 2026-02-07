@@ -2,67 +2,67 @@
     "levels": [
         {
             "id": 1,
-            "title": "Lluvia de Vida",
-            "mission": "Dibuja lneas verticales que bajen de la nube.",
-            "validation_criteria": "Trazos verticales descendentes. Rectitud.",
-            "success_feedback": "¡La lluvia cae y da vida!",
-            "failure_feedback": "Intenta hacer las líneas más rectas, como la lluvia.",
+            "title": "Rain of Life",
+            "mission": "Draw vertical lines falling from the cloud.",
+            "validation_criteria": "Downward vertical strokes. Straightness.",
+            "success_feedback": "The rain falls and gives life!",
+            "failure_feedback": "Try to make the lines straighter, like real rain.",
             "style_prompt_template": "A close-up 3D render of a {object} made of {style}, isolated on white background. The {object} is the main subject. High fidelity, 8k."
         },
         {
             "id": 2,
-            "title": "Escudo Burbuja",
-            "mission": "Encierra al personaje en un círculo.",
-            "validation_criteria": "Forma cerrada circular u ovalada.",
-            "success_feedback": "¡Escudo activado! Nada puede entrar.",
-            "failure_feedback": "¡Cuidado! Hay un hueco en el escudo.",
+            "title": "Bubble Shield",
+            "mission": "Enclose the character in a circle.",
+            "validation_criteria": "Closed circular or oval shape.",
+            "success_feedback": "Shield activated! Nothing can get in.",
+            "failure_feedback": "Watch out! There is a gap in the shield.",
             "style_prompt_template": "A giant 3D soap bubble protecting a {object}, iridescent shader, transparent glossy, isolated. The bubble is the focus."
         },
         {
             "id": 3,
-            "title": "Cruzar el Abismo",
-            "mission": "Conecta los dos lados con un puente.",
-            "validation_criteria": "Línea horizontal que conecta A con B.",
-            "success_feedback": "¡Puente construído! Podemos cruzar.",
-            "failure_feedback": "El puente no llega al otro lado o está roto.",
+            "title": "Cross the Abyss",
+            "mission": "Connect both sides with a bridge.",
+            "validation_criteria": "Horizontal line connecting A and B.",
+            "success_feedback": "Bridge built! We can cross now.",
+            "failure_feedback": "The bridge doesn't reach the other side or it's broken.",
             "style_prompt_template": "A sturdy {style} bridge spanning a gap, isometric view, game asset style, isolated on white background. High texture detail."
         },
         {
             "id": 4,
-            "title": "Montaña del Rayo",
-            "mission": "Dibuja un rayo en zig-zag.",
-            "validation_criteria": "Línea con ángulos agudos continuos.",
-            "success_feedback": "¡Energía máxima recibida!",
-            "failure_feedback": "Necesitamos más picos y ángulos agudos.",
+            "title": "Lightning Mountain",
+            "mission": "Draw a zig-zag lightning bolt.",
+            "validation_criteria": "Continuous line with acute angles.",
+            "success_feedback": "Maximum energy received!",
+            "failure_feedback": "We need more peaks and sharp angles.",
             "style_prompt_template": "electric lightning bolt, yellow energy glowing, crackling plasma, style: {style}"
         },
         {
             "id": 5,
-            "title": "Vuelo Acrobático",
-            "mission": "Haz un bucle (loop) en el aire.",
-            "validation_criteria": "Línea curva que se cruza a sí misma.",
-            "success_feedback": "¡Qué pirueta tan elegante!",
-            "failure_feedback": "Intenta que la línea se cruce para formar un bucle.",
+            "title": "Acrobatic Flight",
+            "mission": "Do a loop-the-loop in the air.",
+            "validation_criteria": "Curved line that crosses itself.",
+            "success_feedback": "What an elegant pirouette!",
+            "failure_feedback": "Try to make the line cross itself to form a loop.",
             "style_prompt_template": "wind trail, white smoke stream, speed lines, style: {style}"
         },
         {
             "id": 99,
-            "title": "Modo Creativo",
-            "mission": "¡Dibuja lo que quieras!",
-            "validation_criteria": "IDENTIFICA PRIMERO EL OBJETO DIBUJADO. Si es un gato, di es un gato.",
-            "success_feedback": "¡He reconocido tu dibujo! Es un {object}.",
-            "failure_feedback": "No logro distinguir el dibujo, intenta marcar más el lápiz o cerrar las formas.",
+            "title": "Creative Mode",
+            "mission": "Draw whatever you want!",
+            "validation_criteria": "FIRST IDENTIFY THE DRAWN OBJECT. If it is a cat, say it is a cat.",
+            "success_feedback": "I recognized your drawing! It's a {object}.",
+            "failure_feedback": "I can't quite distinguish the drawing, try to press harder with the pencil or close the shapes.",
             "style_prompt_template": "A high-quality 3D render of a {object} made of {style}, centered, isolated on plain background. The {object} is based on a child's drawing but transformed into a professional asset. No landscapes, just the {object}."
         }
     ],
     "styles": [
-        "Plastilina (Claymation)",
-        "Realista (Photorealistic)",
-        "Caricatura (Cartoon)",
+        "Claymation",
+        "Photorealistic",
+        "Cartoon",
         "Pixel Art",
         "Origami",
         "Neon",
-        "Boceto a Lápiz (Sketch)",
-        "Acuarela (Watercolor)"
+        "Sketch",
+        "Watercolor"
     ]
 }
